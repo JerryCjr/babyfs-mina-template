@@ -13,6 +13,7 @@ const tinify = require('tinify');
 const md5 = require('md5');
 const qn = require('qn');
 const filter = require('gulp-filter');
+const _ = require('./tools/utils.js');
 
 // path
 const srcPath = './src/**';
@@ -42,6 +43,26 @@ let qnConfig = qn.create(qnOptions);
 /* 清除dist目录 */
 gulp.task('clean', done => {
   del.sync(['dist/**/*']);
+  done();
+});
+
+// custome-component 依赖安装
+gulp.task('install', async done => {
+  const cwd = path.join(__dirname, 'node_modules');
+  const dirPath = path.join(__dirname, 'dist', 'miniprogram_npm');
+  const OFFICIAL_COMPONENT = 'miniprogram-';
+  const BABYFS_COMPONENT = 'babyfs-wxapp-component-';
+  const globOptions = {
+    cwd,
+    nodir: false
+  };
+  const comDirNames = await _.globSync(`+(${OFFICIAL_COMPONENT}*|${BABYFS_COMPONENT}*)/`, globOptions);
+  await _.removeDir(`${dirPath}`);
+  for (let i = 0, len = comDirNames.length; i < len; i++) {
+    const filePath = comDirNames[i].slice(0, -1);
+    gulp.src(path.join(cwd, filePath, 'miniprogram_dist/**'))
+      .pipe(gulp.dest(path.join(dirPath, filePath)));
+  }
   done();
 });
 
@@ -253,7 +274,7 @@ const img = () => {
 gulp.task(img);
 
 /* build */
-gulp.task('build', gulp.series('clean', gulp.parallel('wxml', 'wxnpm', 'js', 'json', 'wxss', 'img', 'audio')));
+gulp.task('build', gulp.series('clean', gulp.parallel('install', 'wxml', 'wxnpm', 'js', 'json', 'wxss', 'img', 'audio')));
 
 /* watch */
 gulp.task('watch', () => {
