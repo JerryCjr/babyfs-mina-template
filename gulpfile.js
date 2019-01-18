@@ -227,6 +227,9 @@ const json = () => {
     .src(jsonFiles, {
       since: gulp.lastRun(json)
     })
+    .pipe(replace(/@\//ig, value => {
+      return value.replace('@', '/miniprogram_npm');
+    }))
     .pipe(gulp.dest(distPath));
 };
 gulp.task(json);
