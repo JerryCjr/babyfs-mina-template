@@ -187,7 +187,7 @@ const wxnpm = () => {
       mode: 'development',
       devtool: 'source-map',
       output: {
-        filename: 'bundle.js',
+        filename: 'index.js',
         libraryTarget: 'commonjs2'
       }
     }))

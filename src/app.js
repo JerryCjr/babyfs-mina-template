@@ -1,5 +1,8 @@
-// eslint-disable-next-line no-unused-vars
-import regeneratorRuntime from './miniprogram_npm/babyfs-wxapp-runningtime/index.js';
+import {
+  // eslint-disable-next-line no-unused-vars
+  regeneratorRuntime,
+  storage
+} from './wxnpm/index.js';
 
 App({
 
@@ -12,7 +15,9 @@ App({
    * 当小程序启动，或从后台进入前台显示，会触发 onShow
    */
   onShow(options) {
-
+    storage.setData('test', JSON.stringify({
+      test: 'this is a test'
+    }));
   },
 
   /**
