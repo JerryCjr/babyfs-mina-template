@@ -27,6 +27,8 @@ const jsonFiles = [`${srcPath}/*.json`, `!${srcPath}/_template/*.json`, `!${srcP
 const jsFiles = [`${srcPath}/*.js`, `!${srcPath}/_template/*.js`, `!${srcPath}/wxnpm/*.js`];
 const wxnpmFiles = [`${srcPath}/wxnpm/*.js`];
 const audioFiles = [`${srcPath}/audio/*.*`];
+// env
+const isDev = process.argv.indexOf('--develop') >= 0;
 // config
 const manifestSrc = './src/images/manifest.json';
 let imageMap = JSON.parse(fs.readFileSync(manifestSrc).toString().trim()) || {};
@@ -184,8 +186,8 @@ const wxnpm = () => {
   return gulp
     .src(wxnpmFiles)
     .pipe(webpack({
-      mode: 'development',
-      devtool: 'source-map',
+      mode: isDev ? 'development' : 'production',
+      devtool: isDev ? 'source-map' : 'none',
       output: {
         filename: 'index.js',
         libraryTarget: 'commonjs2'
