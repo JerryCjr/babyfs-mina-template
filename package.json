@@ -4,9 +4,9 @@
   "description": "宝玩小程序开发模板",
   "main": "index.js",
   "scripts": {
-    "dev": "eslint --ext .js src --fix && gulp dev --develop",
-    "lint": "eslint --ext .js src gulpfile.js  --fix",
-    "build": "gulp build"
+    "dev": "eslint --ext .js src --fix && gulp dev --development",
+    "build": "eslint --ext .js src --fix && gulp build --production",
+    "lint": "eslint --ext .js src gulpfile.js  --fix"
   },
   "repository": {},
   "keywords": [],

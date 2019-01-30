@@ -1,6 +1,7 @@
 const fs = require('fs');
 const gulp = require('gulp');
 const webpack = require('webpack-stream');
+const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const less = require('gulp-less');
 const rename = require('gulp-rename');
@@ -28,7 +29,7 @@ const jsFiles = [`${srcPath}/*.js`, `!${srcPath}/_template/*.js`, `!${srcPath}/w
 const wxnpmFiles = [`${srcPath}/wxnpm/*.js`];
 const audioFiles = [`${srcPath}/audio/*.*`];
 // env
-const isDev = process.argv.indexOf('--develop') >= 0;
+const isDev = process.argv.indexOf('--development') >= 0;
 // config
 const manifestSrc = './src/images/manifest.json';
 let imageMap = JSON.parse(fs.readFileSync(manifestSrc).toString().trim()) || {};
@@ -187,10 +188,26 @@ const wxnpm = () => {
     .src(wxnpmFiles)
     .pipe(webpack({
       mode: isDev ? 'development' : 'production',
-      devtool: isDev ? 'source-map' : 'none',
+      devtool: 'source-map',
       output: {
         filename: 'index.js',
         libraryTarget: 'commonjs2'
+      },
+      optimization: {
+        minimizer: [
+          new TerserPlugin({
+            test: /\.js(\?.*)?$/i,
+            include: 'index.js',
+            sourceMap: true,
+            terserOptions: {
+              // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
+              compress: false,
+              mangle: {
+                reserved: ['regeneratorRuntime']
+              }
+            }
+          })
+        ]
       }
     }))
     .pipe(gulp.dest(wxnpmPath));
