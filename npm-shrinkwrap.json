@@ -484,12 +484,11 @@
       "optional": true
     },
     "babyfs-wxapp-checkupdate": {
-      "version": "1.0.1",
-      "resolved": "http://npm.babyfs.cn/babyfs-wxapp-checkupdate/-/babyfs-wxapp-checkupdate-1.0.1.tgz",
-      "integrity": "sha512-QbRyhONrtrtBG5ZxGZbPNQdAAYGc/sPcq75/x1R1MOARmN3af6gbp2ItHHfgNcTKFwK+D/zc5r9RT9Hhf1XZUw==",
+      "version": "1.0.2",
+      "resolved": "http://npm.babyfs.cn/babyfs-wxapp-checkupdate/-/babyfs-wxapp-checkupdate-1.0.2.tgz",
+      "integrity": "sha512-EUoaCTrVoNOBsco+8SYQ6jDHHegDuMcf1k2fTXbPoxwDmo2Lz7wikA308MtnlO8R5svlLgszdS7m34cIPXv7Tg==",
       "requires": {
-        "babyfs-wxapp-request": "0.0.2",
-        "babyfs-wxapp-runningtime": "^1.0.1"
+        "babyfs-wxapp-request": "0.0.2"
       }
     },
     "babyfs-wxapp-request": {
@@ -28226,14 +28225,9 @@
         }
       }
     },
-    "babyfs-wxapp-runningtime": {
-      "version": "1.0.1",
-      "resolved": "http://npm.babyfs.cn/babyfs-wxapp-runningtime/-/babyfs-wxapp-runningtime-1.0.1.tgz",
-      "integrity": "sha512-N6rkMde6MAUR2u4fon+mvBa31Kj3nUnxd06wYi/FmGr2/OoyC1Av4BY6Tt+YlYqPtQo8XgcQSMcVe5yNP/ibSw=="
-    },
     "babyfs-wxapp-storage": {
       "version": "1.0.4",
-      "resolved": "https://registry.npmjs.org/babyfs-wxapp-storage/-/babyfs-wxapp-storage-1.0.4.tgz",
+      "resolved": "http://npm.babyfs.cn/babyfs-wxapp-storage/-/babyfs-wxapp-storage-1.0.4.tgz",
       "integrity": "sha512-PqAojqTsEJCdMfIJK4/NKioXZdRCzD2SP+g2CPTTU6ytUAl/4srYcfYeGdiz13v4IgoJ0Ey3EW7qv2NxPxOSgg=="
     },
     "bach": {
