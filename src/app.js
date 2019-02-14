@@ -1,8 +1,7 @@
-import {
-  // eslint-disable-next-line no-unused-vars
-  regeneratorRuntime,
-  storage
-} from './wxnpm/index.js';
+// eslint-disable-next-line no-unused-vars
+import regeneratorRuntime from '@/babyfs-wxapp-runningtime/index.js';
+import storage from '@/babyfs-wxapp-storage/index.js';
+// import checkUpdate from '@/babyfs-wxapp-checkupdate/index.js';
 
 App({
 
@@ -18,6 +17,8 @@ App({
     storage.setData('test', JSON.stringify({
       test: 'this is a test'
     }));
+    console.log(storage);
+    // console.log(checkUpdate);
   },
 
   /**

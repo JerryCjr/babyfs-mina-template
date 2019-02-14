@@ -1,7 +1,5 @@
 const fs = require('fs');
 const gulp = require('gulp');
-const webpack = require('webpack-stream');
-const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const less = require('gulp-less');
 const rename = require('gulp-rename');
@@ -19,17 +17,15 @@ const _ = require('./tools/utils.js');
 // path
 const srcPath = './src/**';
 const distPath = './dist/';
-const wxnpmPath = './dist/wxnpm';
+
 // files
 const wxmlFiles = [`${srcPath}/*.wxml`, `!${srcPath}/_template/*.wxml`];
 const lessFiles = [`${srcPath}/*.less`, `!${srcPath}/_template/*.less`];
 const imgFiles = [`${srcPath}/images/*.{png,jpg,gif,ico}`, `${srcPath}/images/**/*.{png,jpg,gif,ico}`];
 const jsonFiles = [`${srcPath}/*.json`, `!${srcPath}/_template/*.json`, `!${srcPath}/images/*.json`];
 const jsFiles = [`${srcPath}/*.js`, `!${srcPath}/_template/*.js`, `!${srcPath}/wxnpm/*.js`];
-const wxnpmFiles = [`${srcPath}/wxnpm/*.js`];
 const audioFiles = [`${srcPath}/audio/*.*`];
-// env
-const isDev = process.argv.indexOf('--development') >= 0;
+
 // config
 const manifestSrc = './src/images/manifest.json';
 let imageMap = JSON.parse(fs.readFileSync(manifestSrc).toString().trim()) || {};
@@ -43,23 +39,27 @@ const qnOptions = {
 };
 let qnConfig = qn.create(qnOptions);
 
-/* 清除dist目录 */
+// 命令行快速创建
+const auto = require('./conf/auto.js');
+
+// clean
 gulp.task('clean', done => {
   del.sync(['dist/**/*']);
   done();
 });
 
-// custome-component 依赖安装
+// miniprogram_npm依赖导入
 gulp.task('install', async done => {
   const cwd = path.join(__dirname, 'node_modules');
   const dirPath = path.join(__dirname, 'dist', 'miniprogram_npm');
-  const OFFICIAL_COMPONENT = 'miniprogram-';
-  const BABYFS_COMPONENT = 'babyfs-wxapp-component-';
+  const OFFICIAL_COMPONENT = 'miniprogram-'; // 官方自定义组件
+  const BABYFS_COMPONENT = 'babyfs-wxapp-component-'; // 宝玩自定义组件
+  const BABYFS_PUREJS = 'babyfs-wxapp-'; // 宝玩js模块
   const globOptions = {
     cwd,
     nodir: false
   };
-  const comDirNames = await _.globSync(`+(${OFFICIAL_COMPONENT}*|${BABYFS_COMPONENT}*)/`, globOptions);
+  const comDirNames = await _.globSync(`+(${OFFICIAL_COMPONENT}*|${BABYFS_COMPONENT}*|${BABYFS_PUREJS}*)/`, globOptions);
   await _.removeDir(`${dirPath}`);
   for (let i = 0, len = comDirNames.length; i < len; i++) {
     const filePath = comDirNames[i].slice(0, -1);
@@ -69,7 +69,7 @@ gulp.task('install', async done => {
   done();
 });
 
-/* 替换本都路径为cdn */
+// replaceImgSrc
 let replaceImgSrc = function () {
   // eslint-disable-next-line no-useless-escape
   return replace(/[\w\d-\/\.]+\.(png|gif|jpg|ico)/ig, function (value) {
@@ -85,7 +85,7 @@ let replaceImgSrc = function () {
   });
 };
 
-/* 上传图片到cdn */
+// qnniuCDN
 let qnniuCDN = function () {
   return through.obj(function (file, encoding, callback) {
     let that = this;
@@ -122,7 +122,7 @@ let qnniuCDN = function () {
   });
 };
 
-/* tinify远程压缩图片 */
+// tinify
 let tinifyImg = function () {
   let keyArr = ['4QqiHTeLmqFBg2JLDJDmXMRCrFO4h4fC', 'WvNbLvu5P9PvcwOtzt5C6MW94eOfncBc', 'SWmjBgHX2ywDDP8qfgVPD8v1p6km5wp1'];
   tinify.key = keyArr[0];
@@ -171,7 +171,7 @@ let tinifyImg = function () {
   });
 };
 
-/* 编译wxml文件 */
+// wxml
 const wxml = () => {
   return gulp
     .src(wxmlFiles, {
@@ -182,44 +182,15 @@ const wxml = () => {
 };
 gulp.task(wxml);
 
-/* npm处理 */
-const wxnpm = () => {
-  return gulp
-    .src(wxnpmFiles)
-    .pipe(webpack({
-      mode: isDev ? 'development' : 'production',
-      devtool: 'source-map',
-      output: {
-        filename: 'index.js',
-        libraryTarget: 'commonjs2'
-      },
-      optimization: {
-        minimizer: [
-          new TerserPlugin({
-            test: /\.js(\?.*)?$/i,
-            include: 'index.js',
-            sourceMap: true,
-            terserOptions: {
-              // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
-              compress: false,
-              mangle: {
-                reserved: ['regeneratorRuntime']
-              }
-            }
-          })
-        ]
-      }
-    }))
-    .pipe(gulp.dest(wxnpmPath));
-};
-gulp.task(wxnpm);
-
-/* 编译JS文件 */
-const js = () => {
+// js
+const js = async () => {
   return gulp
     .src(jsFiles, {
       since: gulp.lastRun(js)
     })
+    .pipe(replace(/@\/.*/ig, value => {
+      return value.replace(/@/, '/miniprogram_npm');
+    }))
     .pipe(replaceImgSrc())
     .pipe(eslint({
       fix: true
@@ -230,7 +201,7 @@ const js = () => {
 };
 gulp.task(js);
 
-/* 编译JS文件 */
+// audio
 const audio = () => {
   return gulp
     .src(audioFiles, {
@@ -240,7 +211,7 @@ const audio = () => {
 };
 gulp.task(audio);
 
-/* 编译json文件 */
+// json
 const json = () => {
   return gulp
     .src(jsonFiles, {
@@ -253,7 +224,7 @@ const json = () => {
 };
 gulp.task(json);
 
-/* 编译less文件 */
+// less => wxss
 const wxss = () => {
   return gulp
     .src(lessFiles)
@@ -271,17 +242,7 @@ const wxss = () => {
 };
 gulp.task(wxss);
 
-/* rpx2px */
-const rpx2px = () => {
-  return gulp.src('./src/**/*.less')
-    .pipe(replace(/\d*(\.\d+)?rpx/g, value => {
-      return `${value.match(/\d*(\.\d+)?/)[0] / 2}px`;
-    }))
-    .pipe(gulp.dest('./src'));
-};
-gulp.task(rpx2px);
-
-/* 编译压缩图片 */
+// image
 const img = () => {
   return gulp
     .src(imgFiles, {
@@ -295,10 +256,10 @@ const img = () => {
 };
 gulp.task(img);
 
-/* build */
-gulp.task('build', gulp.series('clean', gulp.parallel('install', 'wxml', 'wxnpm', 'js', 'json', 'wxss', 'img', 'audio')));
+// build
+gulp.task('build', gulp.series('clean', gulp.parallel('install', 'wxml', 'js', 'json', 'wxss', 'img', 'audio')));
 
-/* watch */
+// watch
 gulp.task('watch', () => {
   let watchLessFiles = [...lessFiles];
   watchLessFiles.pop();
@@ -307,99 +268,11 @@ gulp.task('watch', () => {
   gulp.watch(imgFiles, img);
   gulp.watch(jsonFiles, json);
   gulp.watch(wxmlFiles, wxml);
-  gulp.watch(wxnpmFiles, wxnpm);
   gulp.watch(audioFiles, audio);
 });
 
-/* dev */
+// dev
 gulp.task('dev', gulp.series('build', 'watch'));
 
-/**
- * auto 自动创建page or template or component
- *  -s 源目录（默认为_template)
- * @example
- *   gulp auto -p mypage           创建名称为mypage的page文件
- *   gulp auto -t mytpl            创建名称为mytpl的template文件
- *   gulp auto -c mycomponent      创建名称为mycomponent的component文件
- *   gulp auto -s index -p mypage  创建名称为mypage的page文件
- */
-const auto = done => {
-  const yargs = require('yargs')
-    .example('gulp auto -p mypage', '创建名为mypage的page文件')
-    .example('gulp auto -t mytpl', '创建名为mytpl的template文件')
-    .example('gulp auto -c mycomponent', '创建名为mycomponent的component文件')
-    .example('gulp auto -s index -p mypage', '复制pages/index中的文件创建名称为mypage的页面')
-    .option({
-      s: {
-        alias: 'src',
-        default: '_template',
-        describe: 'copy的模板',
-        type: 'string'
-      },
-      p: {
-        alias: 'page',
-        describe: '生成的page名称',
-        conflicts: ['t', 'c'],
-        type: 'string'
-      },
-      t: {
-        alias: 'template',
-        describe: '生成的template名称',
-        type: 'string',
-        conflicts: ['c']
-      },
-      c: {
-        alias: 'component',
-        describe: '生成的component名称',
-        type: 'string'
-      },
-      version: {
-        hidden: true
-      },
-      help: {
-        hidden: true
-      }
-    })
-    .fail(msg => {
-      done();
-      console.error('创建失败!!!');
-      console.error(msg);
-      console.error('请按照如下命令执行...');
-      yargs.parse(['--msg']);
-      return false;
-    })
-    .help('msg');
-
-  const argv = yargs.argv;
-  const source = argv.s;
-  const typeEnum = {
-    p: 'pages',
-    t: 'templates',
-    c: 'components'
-  };
-  let hasParams = false;
-  let name, type;
-  for (let key in typeEnum) {
-    hasParams = hasParams || !!argv[key];
-    if (argv[key]) {
-      name = argv[key];
-      type = typeEnum[key];
-    }
-  }
-  if (!hasParams) {
-    done();
-    yargs.parse(['--msg']);
-  }
-
-  const root = path.join(__dirname, 'src', type);
-  return gulp
-    .src(path.join(root, source, '*.*'))
-    .pipe(
-      rename({
-        dirname: name,
-        basename: name
-      })
-    )
-    .pipe(gulp.dest(path.join(root)));
-};
+// auto 命令行快速创建
 gulp.task(auto);
