@@ -34,7 +34,7 @@
     "yargs": "^12.0.2"
   },
   "dependencies": {
-    "babyfs-wxapp-checkupdate": "^1.0.2",
+    "babyfs-wxapp-checkupdate": "^1.0.3",
     "babyfs-wxapp-storage": "^1.0.4",
     "miniprogram-navigation-bar": "0.0.4"
   }
