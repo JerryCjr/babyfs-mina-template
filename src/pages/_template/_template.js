@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-unused-vars
-import regeneratorRuntime from '../../miniprogram_npm/babyfs-wxapp-runningtime/index.js';
+import regeneratorRuntime from '@/babyfs-wxapp-runningtime/index.js';
 Page({
 
   /**

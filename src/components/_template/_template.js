@@ -1,3 +1,4 @@
+import regeneratorRuntime from '@/babyfs-wxapp-runningtime/index.js';
 Component({
 
   options: {
