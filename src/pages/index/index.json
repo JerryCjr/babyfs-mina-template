@@ -1,6 +1,4 @@
 {
   "navigationBarTitleText": "_template",
-  "usingComponents": {
-    "navigation-bar": "@/miniprogram-navigation-bar/index"
-  }
+  "usingComponents": {}
 }

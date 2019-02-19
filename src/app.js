@@ -1,24 +1,16 @@
-import regeneratorRuntime from '@/babyfs-wxapp-runningtime/index.js';
-import storage from '@/babyfs-wxapp-storage/index.js';
-import checkUpdate from '@/babyfs-wxapp-checkupdate/index.js';
-
 App({
 
   /**
    * 当小程序初始化完成时，会触发 onLaunch（全局只触发一次）
    */
-  async onLaunch(options) {},
+  async onLaunch(options) {
+    console.log('test async');
+  },
 
   /**
    * 当小程序启动，或从后台进入前台显示，会触发 onShow
    */
-  onShow(options) {
-    storage.setData('test', JSON.stringify({
-      test: 'this is a test'
-    }));
-    console.log(storage);
-    console.log(checkUpdate);
-  },
+  onShow(options) {},
 
   /**
    * 当小程序从前台进入后台，会触发 onHide

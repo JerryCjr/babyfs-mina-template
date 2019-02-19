@@ -1,6 +1,6 @@
 {
   "name": "babyfs-mina-template",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "宝玩小程序开发模板",
   "main": "index.js",
   "scripts": {
@@ -35,9 +35,5 @@
     "tinify": "^1.6.0-beta.2",
     "yargs": "^12.0.2"
   },
-  "dependencies": {
-    "babyfs-wxapp-checkupdate": "^1.1.0",
-    "babyfs-wxapp-storage": "^1.1.0",
-    "miniprogram-navigation-bar": "0.0.4"
-  }
+  "dependencies": {}
 }
