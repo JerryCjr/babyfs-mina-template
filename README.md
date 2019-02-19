@@ -3,20 +3,21 @@
 MINA: 保留 MINA (微信小程序官方框架)
 GULP: Gulp 构建
 
-### 工程结构
+## 工程结构
 
-```
+```javascript
 mina-gulp
+├── conf         // 打包相关的配置
 ├── dist         // 编译后目录
 ├── node_modules // 项目依赖
 ├── src
-│    ├── npm        // 页面引用的npm包资源
-│    ├── components // 微信小程序自定义组件
-│    ├── images     // 页面中的图片和icon
-│    ├── pages      // 小程序page文件
-│    ├── styles     // ui框架，公共样式
-│    ├── template   // 模板
-│    ├── utils      // 公共js文件
+│    ├── components       // 微信小程序自定义组件
+│    ├── miniprogram_npm  // npm包资源
+│    ├── images           // 页面中的图片和icon
+│    ├── pages            // 小程序page文件
+│    ├── styles           // ui框架，公共样式
+│    ├── template         // 模板
+│    ├── utils            // 公共js文件
 │    ├── app.js
 │    ├── app.json
 │    ├── app.less
@@ -34,7 +35,7 @@ mina-gulp
 
 1. Less 支持
 2. Eslint 支持
-3. Imagemin 图片压缩支持
+3. Image 图片CDN上传 压缩支持
 4. Async await 支持
 5. NPM 支持
 6. 命令行快速创建页面,组件,模板支持

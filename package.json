@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint --ext .js src gulpfile.js  --fix",
-    "codeshift": "jscodeshift src/components src/pages src/app.js -t ./tools/transformer.js",
+    "codeshift": "jscodeshift src/components src/pages src/app.js -t ./conf/transformer.js",
     "dev": "npm run codeshift && eslint --ext .js src --fix && gulp dev --development",
     "build": "npm run codeshift && eslint --ext .js src --fix && gulp build --production"
   },
