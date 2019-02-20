@@ -1,13 +1,21 @@
 export default function transformer(file, api) {
   const j = api.jscodeshift;
   const source = j(file.source);
-  const arr = source.find(j.ImportDefaultSpecifier);
+  const importDeclarations = source.find(j.ImportDefaultSpecifier);
 
   let runtimeDeclared = false;
-  const runtimePath = `import regeneratorRuntime from '@/babyfs-wxapp-runningtime/index.js';`;
 
-  if (arr.length) {
-    arr.forEach((path) => {
+  const createImportRegenerator = () => {
+    return j.importDeclaration(
+      [j.importDefaultSpecifier(
+        j.identifier('regeneratorRuntime')
+      )],
+      j.literal('@/babyfs-wxapp-runningtime/index.js')
+    );
+  };
+
+  if (importDeclarations.length) {
+    importDeclarations.forEach((path) => {
       if (path.node.local.name === 'regeneratorRuntime') {
         runtimeDeclared = true;
       }
@@ -16,15 +24,14 @@ export default function transformer(file, api) {
       return source
         .find(j.ImportDeclaration)
         .at(0)
-        .insertBefore(runtimePath)
+        .insertBefore(createImportRegenerator())
         .toSource();
     }
   } else {
-    const type = source.find(j.Program).nodes()[0].body[0].type;
-    return source
-      .find(j[type])
-      .at(0)
-      .insertBefore(runtimePath)
-      .toSource();
+    const body = source.get().value.program.body;
+    body.unshift(createImportRegenerator());
+    return source.toSource({
+      quote: 'single'
+    });
   }
 }
