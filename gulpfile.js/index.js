@@ -1,8 +1,5 @@
 const fs = require('fs');
 const del = require('del');
-const path = require('path');
-
-// gulp
 const gulp = require('gulp');
 const less = require('gulp-less');
 const rename = require('gulp-rename');
@@ -19,62 +16,41 @@ const wxmlFiles = [`${srcPath}/*.wxml`, `!${srcPath}/_template/*.wxml`];
 const lessFiles = [`${srcPath}/*.less`, `!${srcPath}/_template/*.less`];
 const imgFiles = [`${srcPath}/images/*.{png,jpg,gif,ico}`, `${srcPath}/images/**/*.{png,jpg,gif,ico}`];
 const jsonFiles = [`${srcPath}/*.json`, `!${srcPath}/_template/*.json`, `!${srcPath}/images/*.json`];
-const jsFiles = [`${srcPath}/*.js`, `!${srcPath}/_template/*.js`, `!${srcPath}/wxnpm/*.js`];
+const jsFiles = [`${srcPath}/*.js`, `!${srcPath}/_template/*.js`];
 const audioFiles = [`${srcPath}/audio/*.*`];
 
 // config
 const manifestSrc = './src/images/manifest.json';
 let imageMap = JSON.parse(fs.readFileSync(manifestSrc).toString().trim()) || {};
 
-// utils
-const _ = require('./tools/utils.js');
 // 命令行快速创建
-const auto = require('./conf/auto.js');
+const auto = require('./auto.js');
 // 图片路径替换
-const replaceImgSrc = require('./conf/replace.js').replaceImgSrc;
+const replaceImgSrc = require('./replace.js').replaceImgSrc;
 // 模块路径替换
-const replaceModulePath = require('./conf/replace.js').replaceModulePath;
+const replaceModulePath = require('./replace.js').replaceModulePath;
 // qiniu
-const qiniuCdn = require('./conf/qiniu.js');
+const qiniuCdn = require('./qiniu.js');
 // tinifyImg
-const tinifyImg = require('./conf/tinify.js');
-
+const tinifyImg = require('./tinify.js');
+// codemod
+const codemod = require('./codemod.js');
+// install
+const install = require('./install.js');
 // clean
-gulp.task('clean', done => {
-  del.sync(['dist/**/*']);
-  done();
-});
+async function clean() {
+  await del.sync(`${distPath}/**/*`);
+}
+gulp.task(clean);
 
-// miniprogram_npm依赖导入
-gulp.task('install', async done => {
-  const cwd = path.join(__dirname, 'node_modules');
-  const dirPath = path.join(__dirname, 'dist', 'miniprogram_npm');
-  const OFFICIAL_COMPONENT = 'miniprogram-'; // 官方自定义组件
-  const BABYFS_COMPONENT = 'babyfs-wxapp-component-'; // 宝玩自定义组件
-  const BABYFS_PUREJS = 'babyfs-wxapp-'; // 宝玩js模块
-  const globOptions = {
-    cwd,
-    nodir: false
-  };
-  const comDirNames = await _.globSync(`+(${OFFICIAL_COMPONENT}*|${BABYFS_COMPONENT}*|${BABYFS_PUREJS}*)/`, globOptions);
-  await _.removeDir(`${dirPath}`);
-  for (let i = 0, len = comDirNames.length; i < len; i++) {
-    const filePath = comDirNames[i].slice(0, -1);
-    gulp.src(path.join(cwd, filePath, 'miniprogram_dist/**'))
-      .pipe(gulp.dest(path.join(dirPath, filePath)));
-  }
-  done();
-});
-
-// wxml
-const wxml = () => {
+function wxml() {
   return gulp
     .src(wxmlFiles, {
       since: gulp.lastRun(wxml)
     })
     .pipe(replaceImgSrc(imageMap))
     .pipe(gulp.dest(distPath));
-};
+}
 gulp.task(wxml);
 
 // js
@@ -83,6 +59,7 @@ const js = async () => {
     .src(jsFiles, {
       since: gulp.lastRun(js)
     })
+    .pipe(codemod())
     .pipe(replaceModulePath())
     .pipe(replaceImgSrc(imageMap))
     .pipe(eslint({
@@ -148,7 +125,7 @@ const img = () => {
 gulp.task(img);
 
 // build
-gulp.task('build', gulp.series('clean', gulp.parallel('install', 'wxml', 'js', 'json', 'wxss', 'img', 'audio')));
+gulp.task('build', gulp.series(clean, gulp.parallel(install, wxml, js, json, wxss, img, audio)));
 
 // watch
 gulp.task('watch', () => {
