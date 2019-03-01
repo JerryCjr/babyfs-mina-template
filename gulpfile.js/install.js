@@ -24,7 +24,7 @@ module.exports = async function (cb) {
   for (let i = 0, len = comDirNames.length; i < len; i++) {
     const filePath = comDirNames[i].slice(0, -1);
     src(path.join(cwd, filePath, 'miniprogram_dist/**'))
-      .pipe(codemod('dist'))
+      .pipe(codemod('install'))
       .pipe(dest(path.join(dirPath, filePath)));
   }
 

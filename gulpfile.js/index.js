@@ -59,7 +59,7 @@ const js = async () => {
     .src(jsFiles, {
       since: gulp.lastRun(js)
     })
-    .pipe(codemod())
+    .pipe(codemod('src'))
     .pipe(replaceModulePath())
     .pipe(replaceImgSrc(imageMap))
     .pipe(eslint({
