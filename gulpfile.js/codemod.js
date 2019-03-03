@@ -45,7 +45,9 @@ function transform(file, channel) {
         .find(j.ImportDeclaration)
         .at(0)
         .insertBefore(createImportRegenerator())
-        .toSource();
+        .toSource({
+          quote: 'single'
+        });
     }
   } else {
     const body = source.get().value.program.body;
