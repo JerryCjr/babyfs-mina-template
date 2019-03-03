@@ -7,25 +7,41 @@ GULP: Gulp 构建
 
 ```javascript
 mina-gulp
-├── conf         // 打包相关的配置
-├── dist         // 编译后目录
-├── node_modules // 项目依赖
-├── src
+├── dist                  // 编译后目录
+│    ├── miniprogram_npm  // 真正参与构建打包的npm资源
 │    ├── components       // 微信小程序自定义组件
-│    ├── miniprogram_npm  // npm包资源
 │    ├── images           // 页面中的图片和icon
 │    ├── pages            // 小程序page文件
 │    ├── styles           // ui框架，公共样式
 │    ├── template         // 模板
-│    ├── utils            // 公共js文件
 │    ├── app.js
 │    ├── app.json
 │    ├── app.less
 │    ├── project.config.json // 项目配置文件
+├── gulpfile.js           // 打包相关的配置
+│    ├── auto.js          // 命令行快速创建
+│    ├── codemod.js       // jscodeshift
+│    ├── index.js         // gulpfile.js
+│    ├── install.js       // 安装模块依赖
+│    ├── qiniu.js         // 七牛cdn
+│    ├── replace.js       // 路径解析
+│    ├── tinify.js        // 图片压缩
+├── node_modules          // 项目依赖
+├── src
+│    ├── components       // 微信小程序自定义组件
+│    ├── images           // 页面中的图片和icon
+│    ├── pages            // 小程序page文件
+│    ├── styles           // ui框架，公共样式
+│    ├── template         // 模板
+│    ├── app.js
+│    ├── app.json
+│    ├── app.less
+│    ├── project.config.json  // 项目配置文件
+├── tools                 // 工具方法
 ├── .editorconfig.js
 ├── .eslintrc.js
 ├── .gitignore
-├── gulpfile.js    // gulp配置文件
+├── npm-shrinkwrap.json
 ├── package-lock.json
 ├── package.json
 └── README.md
