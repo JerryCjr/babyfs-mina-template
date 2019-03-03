@@ -22,7 +22,8 @@ function transform(file, channel) {
       break;
     case 'install':
       if (/babyfs-wxapp-runningtime/.test(file.path)) return source.toSource();
-      pathBeforePiped = filePath.slice(pos + 'miniprogram_dist'.length + 1);
+      const prefix = filePath.match(/node_modules\/.*\/miniprogram_dist/)[0].slice('node_modules'.length, 'miniprogram_dist'.length * -1 - 1);
+      pathBeforePiped = prefix + filePath.slice(pos + 'miniprogram_dist'.length + 1);
       pathPiped = path.join('dist/miniprogram_npm', pathBeforePiped);
   }
   relative = path.relative(path.dirname(pathPiped), runtimePath);
