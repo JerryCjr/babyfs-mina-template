@@ -1,6 +1,13 @@
 const fs = require('fs');
 const del = require('del');
-const gulp = require('gulp');
+const {
+  src,
+  dest,
+  series,
+  parallel,
+  watch,
+  lastRun
+} = require('gulp');
 const less = require('gulp-less');
 const rename = require('gulp-rename');
 const eslint = require('gulp-eslint');
@@ -41,24 +48,15 @@ const install = require('./install.js');
 async function clean() {
   await del.sync(`${distPath}/**/*`);
 }
-gulp.task(clean);
-
+// wxml
 function wxml() {
-  return gulp
-    .src(wxmlFiles, {
-      since: gulp.lastRun(wxml)
-    })
+  return src(wxmlFiles, { since: lastRun(wxml) })
     .pipe(replaceImgSrc(imageMap))
-    .pipe(gulp.dest(distPath));
+    .pipe(dest(distPath));
 }
-gulp.task(wxml);
-
 // js
 const js = async () => {
-  return gulp
-    .src(jsFiles, {
-      since: gulp.lastRun(js)
-    })
+  return src(jsFiles, { since: lastRun(js) })
     .pipe(codemod('src'))
     .pipe(replaceModulePath())
     .pipe(replaceImgSrc(imageMap))
@@ -67,35 +65,22 @@ const js = async () => {
     }))
     .pipe(eslint.format())
     .pipe(eslint.failAfterError())
-    .pipe(gulp.dest(distPath));
+    .pipe(dest(distPath));
 };
-gulp.task(js);
-
 // audio
 const audio = () => {
-  return gulp
-    .src(audioFiles, {
-      since: gulp.lastRun(audio)
-    })
-    .pipe(gulp.dest(distPath));
+  return src(audioFiles, { since: lastRun(audio) })
+    .pipe(dest(distPath));
 };
-gulp.task(audio);
-
 // json
 const json = () => {
-  return gulp
-    .src(jsonFiles, {
-      since: gulp.lastRun(json)
-    })
+  return src(jsonFiles, { since: lastRun(json) })
     .pipe(replaceModulePath())
-    .pipe(gulp.dest(distPath));
+    .pipe(dest(distPath));
 };
-gulp.task(json);
-
 // less => wxss
 const wxss = () => {
-  return gulp
-    .src(lessFiles)
+  return src(lessFiles)
     .pipe(replaceImgSrc(imageMap))
     .pipe(less())
     .pipe(px2rpx({
@@ -106,41 +91,44 @@ const wxss = () => {
     .pipe(rename({
       extname: '.wxss'
     }))
-    .pipe(gulp.dest(distPath));
+    .pipe(dest(distPath));
 };
-gulp.task(wxss);
-
 // image
 const img = () => {
-  return gulp
-    .src(imgFiles, {
-      since: gulp.lastRun(img)
-    })
+  return src(imgFiles, { since: lastRun(img) })
     .pipe(tinifyImg(imageMap, manifestSrc))
     .pipe(qiniuCdn(imageMap, manifestSrc))
-    .pipe(gulp.dest('./src'))
+    .pipe(dest('./src'))
     .pipe(filter(['src/images/tab_bar/*.*', 'src/images/local/*.*']))
-    .pipe(gulp.dest(distPath));
+    .pipe(dest(distPath));
 };
-gulp.task(img);
-
-// build
-gulp.task('build', gulp.series(clean, gulp.parallel(install, wxml, js, json, wxss, img, audio)));
-
-// watch
-gulp.task('watch', () => {
+// watcher
+function watcher() {
   let watchLessFiles = [...lessFiles];
   watchLessFiles.pop();
-  gulp.watch(watchLessFiles, wxss);
-  gulp.watch(jsFiles, js);
-  gulp.watch(imgFiles, img);
-  gulp.watch(jsonFiles, json);
-  gulp.watch(wxmlFiles, wxml);
-  gulp.watch(audioFiles, audio);
-});
-
+  watch(watchLessFiles, wxss);
+  watch(jsFiles, js);
+  watch(imgFiles, img);
+  watch(jsonFiles, json);
+  watch(wxmlFiles, wxml);
+  watch(audioFiles, audio);
+}
+// build
+const build = series(clean, parallel(install, wxml, js, json, wxss, img, audio));
 // dev
-gulp.task('dev', gulp.series('build', 'watch'));
+const dev = series(build, watcher);
 
-// auto 命令行快速创建
-gulp.task(auto);
+module.exports = {
+  clean,
+  wxml,
+  wxss,
+  img,
+  audio,
+  js,
+  json,
+  auto,
+  watch,
+  build,
+  dev,
+  default: dev
+};
