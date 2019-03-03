@@ -114,7 +114,7 @@ function watcher() {
   watch(audioFiles, audio);
 }
 // build
-const build = series(clean, parallel(install, wxml, js, json, wxss, img, audio));
+const build = series(clean, install, parallel(wxml, js, json, wxss, img, audio));
 // dev
 const dev = series(build, watcher);
 
