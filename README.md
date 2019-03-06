@@ -37,6 +37,7 @@ mina-gulp
 │    ├── app.json
 │    ├── app.less
 │    ├── project.config.json  // 项目配置文件
+├── test_modules          // module用来测试多版本依赖的处理
 ├── tools                 // 工具方法
 ├── .editorconfig.js
 ├── .eslintrc.js

@@ -1,3 +1,4 @@
+import moduleC from '@/@chengjinrui/module_c/index.js';
 App({
 
   /**
@@ -5,6 +6,7 @@ App({
    */
   async onLaunch(options) {
     console.log('test async');
+    console.log(moduleC);
   },
 
   /**

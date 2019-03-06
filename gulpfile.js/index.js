@@ -120,6 +120,7 @@ const dev = series(build, watcher);
 
 module.exports = {
   clean,
+  install,
   wxml,
   wxss,
   img,
