@@ -1,6 +1,8 @@
 const path = require('path');
 const j = require('jscodeshift');
 const through = require('through2');
+const conf = require('../package.json');
+const { name, version } = { ...conf };
 
 function transform(file, channel) {
   const filePath = file.path; // 文件路径
@@ -35,6 +37,10 @@ function transform(file, channel) {
     );
   };
 
+  const createVariableRegenerator = (key, value) => {
+    return j.variableDeclaration('const', [j.variableDeclarator(j.identifier('proConf'), j.objectExpression([j.property('init', j.identifier('wxaName'), j.literal(name)), j.property('init', j.identifier('wxaVersion'), j.literal(version))]))]);
+  };
+
   if (importDeclarations.length) {
     importDeclarations.forEach(path => {
       if (path.node.local.name === 'regeneratorRuntime') {
@@ -45,20 +51,27 @@ function transform(file, channel) {
       r = source
         .find(j.ImportDeclaration)
         .at(0)
-        .insertBefore(createImportRegenerator())
-        .toSource({
-          quote: 'single'
-        });
+        .insertBefore(createImportRegenerator());
     }
   } else {
     const body = source.get().value.program.body;
     body.unshift(createImportRegenerator());
-    r = source.toSource({
-      quote: 'single'
-    });
+    r = source;
   }
 
-  return r;
+  function addProConf() {
+    r.find(j.ImportDeclaration)
+      .at(-1)
+      .insertAfter(createVariableRegenerator());
+  }
+
+  if (/app\.js/.test(filePath)) {
+    addProConf();
+  }
+
+  return r.toSource({
+    quote: 'single'
+  });
 };
 
 const codemod = function (channel) {

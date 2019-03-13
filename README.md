@@ -62,3 +62,17 @@ mina-gulp
 - gulp auto -t mytpl 创建名为 mytpl 的 template 文件
 - gulp auto -c mycomponent 创建名为 mycomponent 的 component 文件
 - gulp auto -s index -p mypage 复制 pages/index 中的文件创建名称为 mypage 的页面
+
+
+### Notice
+
+1. 以package.json的version和name作为小程序的版本和名称
+
+```javascript
+// proConf会在构建时自动注入到app.js中 供有需要的开发者使用
+const proConf = {
+  wxaName: 'babyfs-mina-template', // 微信小程序名称
+  wxaVersion: '1.3.1' // 当前微信小程序的版本号
+};
+```
+
