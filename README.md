@@ -66,13 +66,23 @@ mina-gulp
 
 ### Notice
 
-1. 以package.json的version和name作为小程序的版本和名称
+> 以package.json的version和name作为小程序的版本和名称
 
 ```javascript
-// proConf会在构建时自动注入到app.js中 供有需要的开发者使用
-const proConf = {
-  wxaName: 'babyfs-mina-template', // 微信小程序名称
-  wxaVersion: '1.3.1' // 当前微信小程序的版本号
+// proconf.js中 供有需要的开发者使用
+const proconf = {
+  wxa_name: 'babyfs-mina-template', // 微信小程序名称
+  wxa_version: '1.3.1' // 当前微信小程序的版本号
 };
+```
+
+__强烈建议使用babyfs-wxapp-request模块的开发者(request header中会从本地取version和name信息) 通过调用babyfs-wxapp-storage模块的setData方法将conf中的key value存储到本地__
+
+```javascript
+import storage from 'babyfs-wxapp-storage';
+
+storage.setData('wxa_name', proconf['wxa_name'])
+storage.setData('wxa_version', proconf['wxa_version'])
+
 ```
 

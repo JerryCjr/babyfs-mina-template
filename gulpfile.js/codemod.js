@@ -38,7 +38,7 @@ function transform(file, channel) {
   };
 
   const createVariableRegenerator = (key, value) => {
-    return j.variableDeclaration('const', [j.variableDeclarator(j.identifier('proConf'), j.objectExpression([j.property('init', j.identifier('wxaName'), j.literal(name)), j.property('init', j.identifier('wxaVersion'), j.literal(version))]))]);
+    return j.variableDeclaration('const', [j.variableDeclarator(j.identifier('proConf'), j.objectExpression([j.property('init', j.identifier('wxa_name'), j.literal(name)), j.property('init', j.identifier('wxa_version'), j.literal(version))]))]);
   };
 
   if (importDeclarations.length) {
