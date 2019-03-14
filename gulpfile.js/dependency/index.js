@@ -57,10 +57,11 @@ function judgeModuleType(filePath, importPathBeforeResolved) {
     assert.info('依赖类型属于本地依赖');
   } else {
     assert.info('依赖类型属于三方库依赖');
-    externalPath = findInNodeModules(
-      path.dirname(filePath),
-      importPathBeforeResolved
-    );
+    try {
+      externalPath = findInNodeModules(path.dirname(filePath), importPathBeforeResolved);
+    } catch (error) {
+      assert.error(error);
+    }
     assert.warn('externalPath', externalPath);
   }
 
@@ -88,14 +89,15 @@ function resolving(filePath, externalPath) {
   const externalRelativePath = path.relative(path.dirname(filePath), assumedPathDev(copyDestImportFile));
   assert.warn('源文件对于解析后的依赖文件的相对路径', externalRelativePath);
 
+  // TODO: gulpinstall 安装依赖后解析依赖路径的逻辑需要改动
   // copy package.json copySourcePackFile copyDestPackFile
   // copy importfile copySourceImportFile copyDestImportFile
-  try {
-    fileHelper.copy(copySourcePackFile, copyDestPackFile);
-    fileHelper.copy(copySourceImportFile, copyDestImportFile);
-  } catch (error) {
-    assert.error(error);
-  }
+  // try {
+  //   fileHelper.copy(copySourcePackFile, copyDestPackFile);
+  //   fileHelper.copy(copySourceImportFile, copyDestImportFile);
+  // } catch (error) {
+  //   assert.error(error);
+  // }
 
   // assert.info(packageJson); // import file's package.json content
   // assert.info(installedDirectory);

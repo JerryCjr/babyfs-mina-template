@@ -40,12 +40,13 @@ const replaceModulePath = require('./replace.js').replaceModulePath;
 const qiniuCdn = require('./qiniu.js');
 // tinifyImg
 const tinifyImg = require('./tinify.js');
-// codemod
-// const codemod = require('./codemod.js');
+// install
+const install = require('./dependency/install.js');
+console.log(install);
+// shift
+const shift = require('./dependency/shift.js');
 // dependency
 const dependency = require('./dependency');
-// install
-const install = require('./install.js');
 // clean
 async function clean() {
   await del.sync(`${distPath}/**/*`);
@@ -59,8 +60,8 @@ function wxml() {
 // js
 const js = async () => {
   return src(jsFiles, { since: lastRun(js) })
+    .pipe(shift())
     .pipe(dependency())
-    // .pipe(codemod('src'))
     .pipe(replaceModulePath())
     .pipe(replaceImgSrc(imageMap))
     .pipe(eslint({
@@ -118,11 +119,11 @@ function watcher() {
   watch(audioFiles, audio);
 }
 // build
-const build = series(clean, install, parallel(wxml, js, json, wxss, img, audio));
+const build = series(clean, parallel(wxml, js, json, wxss, img, audio));
 // dev
 const dev = series(build, watcher);
 // dedupe
-const dedupe = series(clean, js);
+const dedupe = series(clean, install, js);
 
 module.exports = {
   clean,
