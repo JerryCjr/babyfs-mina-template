@@ -41,7 +41,9 @@ const qiniuCdn = require('./qiniu.js');
 // tinifyImg
 const tinifyImg = require('./tinify.js');
 // codemod
-const codemod = require('./codemod.js');
+// const codemod = require('./codemod.js');
+// dependency
+const dependency = require('./dependency');
 // install
 const install = require('./install.js');
 // clean
@@ -57,7 +59,8 @@ function wxml() {
 // js
 const js = async () => {
   return src(jsFiles, { since: lastRun(js) })
-    .pipe(codemod('src'))
+    .pipe(dependency())
+    // .pipe(codemod('src'))
     .pipe(replaceModulePath())
     .pipe(replaceImgSrc(imageMap))
     .pipe(eslint({
@@ -102,6 +105,7 @@ const img = () => {
     .pipe(filter(['src/images/tab_bar/*.*', 'src/images/local/*.*']))
     .pipe(dest(distPath));
 };
+
 // watcher
 function watcher() {
   let watchLessFiles = [...lessFiles];
@@ -117,6 +121,8 @@ function watcher() {
 const build = series(clean, install, parallel(wxml, js, json, wxss, img, audio));
 // dev
 const dev = series(build, watcher);
+// dedupe
+const dedupe = series(clean, js);
 
 module.exports = {
   clean,
@@ -130,5 +136,6 @@ module.exports = {
   watch,
   build,
   dev,
-  default: dev
+  default: dev,
+  dedupe
 };

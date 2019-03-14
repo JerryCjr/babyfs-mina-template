@@ -1,3 +1,4 @@
+const cj = require('babyfs-wxapp-cj');
 App({
 
   /**
@@ -5,6 +6,7 @@ App({
    */
   async onLaunch(options) {
     console.log('test async');
+    console.log(cj);
   },
 
   /**
