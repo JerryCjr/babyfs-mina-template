@@ -84,8 +84,8 @@ function resolving(filePath, externalPath) {
   const packageJson = require(copySourcePackFile);
   // const installedDirectory = path.resolve(targetDirectory, `${packageJson.name}@${packageJson.version}`);
   const installedDirectory = path.resolve(targetDirectory, packageJson.name);
-  const copyDestPackFile = path.resolve(installedDirectory, 'package.json');
-  const copySourceImportFile = path.resolve(externalPath, `${packageJson.main}`);
+  // const copyDestPackFile = path.resolve(installedDirectory, 'package.json');
+  // const copySourceImportFile = path.resolve(externalPath, `${packageJson.main}`);
   const copyDestImportFile = path.resolve(installedDirectory, `${packageJson.main}`);
   const externalRelativePath = path.relative(path.dirname(filePath), assumedPathDev(copyDestImportFile));
   assert.warn('源文件对于解析后的依赖文件的相对路径', externalRelativePath);
@@ -98,13 +98,6 @@ function resolving(filePath, externalPath) {
   // } catch (error) {
   //   assert.error(error);
   // }
-
-  // assert.info(packageJson); // import file's package.json content
-  // assert.info(installedDirectory);
-  // assert.info(copySourcePackFile);
-  // assert.info(copyDestPackFile);
-  // assert.info(copySourceImportFile);
-  // assert.info(copyDestImportFile);
   return externalRelativePath;
 }
 

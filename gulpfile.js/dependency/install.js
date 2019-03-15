@@ -13,21 +13,6 @@ const distPackageJsonPath = path.resolve('dist', 'package.json');
 const miniprogramNpmPath = path.resolve('dist', 'miniprogram_npm');
 const nodeModulesPath = path.resolve('dist', 'node_modules');
 
-const copyPackageJson = async () => {
-  const packageJson = _.readJson(path.resolve('package.json'));
-  const dependencies = packageJson.dependencies || {};
-  await _.writeFile(distPackageJsonPath, JSON.stringify({
-    dependencies
-  }, null, '\t'));
-};
-
-const npmInstall = () => {
-  return src(distPackageJsonPath)
-    .pipe(gulpInstall({
-      production: true
-    }));
-};
-
 /**
  * @description copy package / find package's entry
  * @author Jerry Cheng
@@ -53,7 +38,7 @@ async function packageHander(sourceFileName) {
     const relative = dependencyDir + '/miniprogram_dist';
     const priority = 2;
     try {
-      await recursive(priority, relative, miniprogramDistPath, copyFile);
+      await recursiveReadDir(priority, relative, miniprogramDistPath, copyFile);
     } catch (error) {
       assert.error(error);
     }
@@ -76,14 +61,14 @@ async function copyFile(sourceFileName) {
 }
 
 // 只解析package.json
-const recursive = async (priority, relative, dir, handler) => {
+const recursiveReadDir = async (priority, relative, dir, handler) => {
   const dirents = await directoryHelper.read(dir, {
     withFileTypes: true
   });
   const promises = dirents.map(async dirent => {
     const direntName = dirent.name;
     if (dirent.isDirectory()) {
-      await recursive(priority, path.join(relative, direntName), path.resolve(dir, direntName), handler);
+      await recursiveReadDir(priority, path.join(relative, direntName), path.resolve(dir, direntName), handler);
     } else if (dirent.isFile()) {
       if (priority === 1) {
         if (direntName === 'package.json') {
@@ -97,14 +82,29 @@ const recursive = async (priority, relative, dir, handler) => {
   await promises;
 };
 
+const createPackageJson = async () => {
+  const packageJson = _.readJson(path.resolve('package.json'));
+  const dependencies = packageJson.dependencies || {};
+  await _.writeFile(distPackageJsonPath, JSON.stringify({
+    dependencies
+  }, null, '\t'));
+};
+
+const npmInstall = () => {
+  return src(distPackageJsonPath)
+    .pipe(gulpInstall({
+      production: true
+    }));
+};
+
 // 重组node_modules
 const recombine = async () => {
   const relative = '';
   const priority = 1;
-  await recursive(priority, relative, nodeModulesPath, packageHander);
+  await recursiveReadDir(priority, relative, nodeModulesPath, packageHander);
 };
 
-const install = series(copyPackageJson, npmInstall, recombine);
+const install = series(createPackageJson, npmInstall, recombine);
 // const install = series(recombine);
 
 module.exports = install;
