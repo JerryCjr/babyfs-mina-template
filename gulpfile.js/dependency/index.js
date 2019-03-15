@@ -109,10 +109,45 @@ function resolving(filePath, externalPath) {
 }
 
 /**
- * 解析依赖 resolveDependencies
- * jscodeshift 修正依赖路径
+ * @description json依赖解析
+ * @author Jerry Cheng
+ * @date 2019-03-15
+ * @param {*} file
+ * @returns
  */
-function resolveDependencies(file) {
+function parseJsonFile(file) {
+  const filePath = file.path;
+  const source = require(filePath);
+
+  if (source.usingComponents) {
+    const handleComponentReference = () => {
+      let keys = Object.keys(source.usingComponents);
+      keys.map(key => {
+        let componentPathBeforeResolved;
+        let componentPathAfterResolved;
+        componentPathBeforeResolved = source.usingComponents[key];
+        const judgement = judgeModuleType(filePath, componentPathBeforeResolved);
+        if (judgement.type === 'external' && judgement.path) {
+          componentPathAfterResolved = resolving(filePath, judgement.path).replace('.js', ''); // component特殊一点 去掉结尾的index.js
+          source.usingComponents[key] = componentPathAfterResolved;
+          assert.warn('componentPathBeforeResolved', componentPathBeforeResolved);
+          assert.warn('componentPathAfterResolved', componentPathAfterResolved);
+        }
+      });
+    };
+    handleComponentReference();
+  }
+  return JSON.stringify(source, null, 2);
+}
+
+/**
+ * @description js依赖解析
+ * @author Jerry Cheng
+ * @date 2019-03-15
+ * @param {*} file
+ * @returns
+ */
+function parseJsFile(file) {
   const filePath = file.path;
   const fileContent = file.contents.toString('utf8');
   const source = j(fileContent);
@@ -169,23 +204,37 @@ function resolveDependencies(file) {
   });
 }
 
-function dependency() {
+/**
+ * @description 处理依赖
+ * @author Jerry Cheng
+ * @date 2019-03-15
+ * @param {*} file
+ * @param {*} extname
+ * @returns file content
+ */
+function resolveDependencies(file, extname) {
+  switch (extname) {
+    case '.json':
+      return parseJsonFile(file);
+    case '.js':
+      return parseJsFile(file);
+  }
+}
+
+module.exports = function dependency() {
   return through.obj(function (file, enc, cb) {
     if (file.isNull()) {
       this.push(file);
       return cb();
     }
-
     if (file.isStream()) {
       assert.error('ERROR: Streaming not supported');
       return cb();
     }
-
-    const content = resolveDependencies(file);
+    const extname = path.extname(file.path);
+    const content = resolveDependencies(file, extname);
     file.contents = Buffer.from(content);
     this.push(file);
     cb();
   });
-}
-
-module.exports = dependency;
+};

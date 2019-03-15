@@ -1,6 +1,1 @@
-<view class="container">
-  <view class="logo">
-    <image src='{{src}}' class="logo" mode="widthFix"></image>
-  </view>
-  <text class="message active">babyfs mina gulp!</text>
-</view>
+<navigation-bar bindnavback="onnavback" enable="{{enable}}" show-loading="{{loading}}" title="{{title}}"></navigation-bar>

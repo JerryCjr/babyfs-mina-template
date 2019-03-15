@@ -78,6 +78,7 @@ const audio = () => {
 // json
 const json = () => {
   return src(jsonFiles, { since: lastRun(json) })
+    .pipe(dependency())
     .pipe(replaceModulePath())
     .pipe(dest(distPath));
 };

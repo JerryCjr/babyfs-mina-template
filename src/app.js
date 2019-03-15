@@ -1,5 +1,5 @@
 // const cj = require('babyfs-wxapp-cj');
-import cj from 'babyfs-wxapp-cj';
+// import cj from 'babyfs-wxapp-cj';
 import moduleC from '@chengjinrui/module_c';
 App({
 
@@ -8,7 +8,7 @@ App({
    */
   async onLaunch(options) {
     console.log('test async');
-    console.log(cj);
+    // console.log(cj);
     console.log(moduleC);
   },
 
