@@ -82,14 +82,14 @@ function judgeModuleType(filePath, importPathBeforeResolved) {
 function resolving(filePath, externalPath) {
   const copySourcePackFile = path.resolve(externalPath, 'package.json');
   const packageJson = require(copySourcePackFile);
-  const installedDirectory = path.resolve(targetDirectory, `${packageJson.name}@${packageJson.version}`);
+  // const installedDirectory = path.resolve(targetDirectory, `${packageJson.name}@${packageJson.version}`);
+  const installedDirectory = path.resolve(targetDirectory, packageJson.name);
   const copyDestPackFile = path.resolve(installedDirectory, 'package.json');
   const copySourceImportFile = path.resolve(externalPath, `${packageJson.main}`);
   const copyDestImportFile = path.resolve(installedDirectory, `${packageJson.main}`);
   const externalRelativePath = path.relative(path.dirname(filePath), assumedPathDev(copyDestImportFile));
   assert.warn('源文件对于解析后的依赖文件的相对路径', externalRelativePath);
 
-  // TODO: gulpinstall 安装依赖后解析依赖路径的逻辑需要改动
   // copy package.json copySourcePackFile copyDestPackFile
   // copy importfile copySourceImportFile copyDestImportFile
   // try {
@@ -112,7 +112,7 @@ function resolving(filePath, externalPath) {
  * 解析依赖 resolveDependencies
  * jscodeshift 修正依赖路径
  */
-async function resolveDependencies(file) {
+function resolveDependencies(file) {
   const filePath = file.path;
   const fileContent = file.contents.toString('utf8');
   const source = j(fileContent);
@@ -170,7 +170,7 @@ async function resolveDependencies(file) {
 }
 
 function dependency() {
-  return through.obj(async function (file, enc, cb) {
+  return through.obj(function (file, enc, cb) {
     if (file.isNull()) {
       this.push(file);
       return cb();
@@ -181,7 +181,7 @@ function dependency() {
       return cb();
     }
 
-    const content = await resolveDependencies(file);
+    const content = resolveDependencies(file);
     file.contents = Buffer.from(content);
     this.push(file);
     cb();

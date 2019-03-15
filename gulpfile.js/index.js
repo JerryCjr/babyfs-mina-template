@@ -42,7 +42,6 @@ const qiniuCdn = require('./qiniu.js');
 const tinifyImg = require('./tinify.js');
 // install
 const install = require('./dependency/install.js');
-console.log(install);
 // shift
 const shift = require('./dependency/shift.js');
 // dependency
@@ -119,11 +118,12 @@ function watcher() {
   watch(audioFiles, audio);
 }
 // build
-const build = series(clean, parallel(wxml, js, json, wxss, img, audio));
+const build = series(clean, parallel(install, wxml, js, json, wxss, img, audio));
 // dev
 const dev = series(build, watcher);
 // dedupe
-const dedupe = series(clean, install, js);
+const dedupe = series(clean, parallel(install, js));
+// const dedupe = series(install);
 
 module.exports = {
   clean,
