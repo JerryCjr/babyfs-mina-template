@@ -2,9 +2,9 @@
 const colors = require('colors');
 let __debug = true;
 
-function clog(msg) {
+function clog() {
   if (__debug) {
-    console.log(msg);
+    console.log.apply(console, arguments);
   }
 }
 

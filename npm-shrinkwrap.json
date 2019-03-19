@@ -849,6 +849,30 @@
         "@chengjinrui/module_b": "^3.0.2"
       }
     },
+    "@chengjinrui/module_d": {
+      "version": "1.0.2",
+      "resolved": "https://registry.npmjs.org/@chengjinrui/module_d/-/module_d-1.0.2.tgz",
+      "integrity": "sha512-p+UUGNzXF8FykPdxdayXqYWT+IP9oakfIywb8Lut1wUDMQMfyKXOJy4wGcs9nTRChxhExChoa+9QWR7imjvRVg==",
+      "requires": {
+        "@chengjinrui/module_a": "^1.0.1"
+      },
+      "dependencies": {
+        "@chengjinrui/module_a": {
+          "version": "1.0.1",
+          "resolved": "https://registry.npmjs.org/@chengjinrui/module_a/-/module_a-1.0.1.tgz",
+          "integrity": "sha512-muPCHiitokEcEERB8ip0eMqqr87OvAxWKaI3uQ6sMvRkZ1D77m+QJoCrwn32/7wsIC5Ld90h/AOB77EUJgLTRA=="
+        }
+      }
+    },
+    "@chengjinrui/module_e": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/@chengjinrui/module_e/-/module_e-1.0.3.tgz",
+      "integrity": "sha512-NwBIOBJG6kUs/boGCst77gIFGEJ5p1lJ4hAcSIWiFaSm3M90tIVU//+bkhKH/ZkvaHqTxksSXjKal4VHfp/jNg==",
+      "requires": {
+        "@chengjinrui/module_a": "^2.1.0",
+        "@chengjinrui/module_d": "^1.0.2"
+      }
+    },
     "@sindresorhus/is": {
       "version": "0.7.0",
       "resolved": "https://registry.npmjs.org/@sindresorhus/is/-/is-0.7.0.tgz",

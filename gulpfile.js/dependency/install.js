@@ -8,6 +8,7 @@ const directoryHelper = require('../../tools/directoryHelper.js');
 const fileHelper = require('../../tools/fileHelper.js');
 const assert = require('../../tools/assert.js');
 const _ = require('../../tools/utils.js');
+const resolveDependencies = require('./jmodule.js').resolveDependencies;
 
 const distPackageJsonPath = path.resolve('dist', 'package.json');
 const miniprogramNpmPath = path.resolve('dist', 'miniprogram_npm');
@@ -22,8 +23,8 @@ const nodeModulesPath = path.resolve('dist', 'node_modules');
 async function packageHander(sourceFileName) {
   const jsonSourcePath = path.resolve(nodeModulesPath, sourceFileName); // PackageJson Source
   const hackFilePath = sourceFileName.replace(/\/node_modules/, '');
-  // const jsonDestPath = path.resolve(miniprogramNpmPath, hackFilePath); // PackageJson Copy
-  // await fileHelper.copy(jsonSourcePath, jsonDestPath);
+  const jsonDestPath = path.resolve(miniprogramNpmPath, hackFilePath); // PackageJson Copy
+  await fileHelper.copy(jsonSourcePath, jsonDestPath);
 
   // Dependency Copy
   const packageJson = require(jsonSourcePath);
@@ -43,8 +44,22 @@ async function packageHander(sourceFileName) {
       assert.error(error);
     }
   } else {
-    // 主入口为main/index.js的三方库
-    await fileHelper.copy(dependencySourcePath, dependencyDestPath);
+    assert.info(dependencySourcePath);
+    // 对packageJson.main指定的入口进行依赖处理 (类似node依赖处理分析)
+    // assert.warn('dependencySourcePath', dependencySourcePath);
+    const dependencyContent = await fileHelper.read(dependencySourcePath);
+    const file = {
+      path: dependencySourcePath,
+      contents: dependencyContent
+    };
+    const extname = path.extname(file.path);
+    const dependencyDestContent = resolveDependencies(file, extname);
+    try {
+      await directoryHelper.create(path.dirname(dependencyDestPath));
+      await fileHelper.write(dependencyDestPath, dependencyDestContent);
+    } catch (error) {
+      assert.error(error);
+    }
   }
 }
 

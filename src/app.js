@@ -1,6 +1,7 @@
 // const cj = require('babyfs-wxapp-cj');
 // import cj from 'babyfs-wxapp-cj';
 import moduleC from '@chengjinrui/module_c';
+import moduleE from '@chengjinrui/module_e';
 App({
 
   /**
@@ -10,6 +11,7 @@ App({
     console.log('test async');
     // console.log(cj);
     console.log(moduleC);
+    console.log(moduleE);
   },
 
   /**

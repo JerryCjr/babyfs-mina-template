@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "@chengjinrui/module_c": "^2.0.2",
+    "@chengjinrui/module_e": "^1.0.3",
     "babyfs-wxapp-cj": "^1.1.4",
     "babyfs-wxapp-runningtime": "^1.1.1",
     "miniprogram-navigation-bar": "0.0.4"
