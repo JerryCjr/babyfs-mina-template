@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 const colors = require('colors');
-let __debug = true;
+let __debug = false;
 
 function clog() {
   if (__debug) {

@@ -98,9 +98,7 @@ function resolving(filePath, externalPath, type) {
   const packageJson = require(copySourcePackFile);
   switch (type) {
     case 'miniprogram_npm':
-      targetDirectory = 'dist/node_modules';
-      installedDirectory = path.resolve(targetDirectory, packageJson.name);
-      copyDestImportFile = path.resolve(installedDirectory, `${packageJson.main}`);
+      copyDestImportFile = path.resolve(externalPath, `${packageJson.main}`);
       externalRelativePath = path.relative(path.dirname(filePath), copyDestImportFile).replace(/node_modules\//, '');
       break;
     default:
