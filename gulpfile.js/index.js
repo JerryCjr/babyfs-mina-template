@@ -124,7 +124,7 @@ const build = series(clean, parallel(install, wxml, js, json, wxss, img, audio))
 const dev = series(build, watcher);
 // dedupe
 const dedupe = series(clean, parallel(install, js));
-// const dedupe = series(install);
+// const dedupe = series(install, js);
 
 module.exports = {
   clean,

@@ -6,8 +6,6 @@ const fileHelper = require('../../tools/fileHelper.js');
 const directoryHelper = require('../../tools/directoryHelper.js');
 const assert = require('../../tools/assert.js');
 
-const targetDirectory = 'dist/miniprogram_npm';
-
 /**
  * @description 查找external模块
  * @author Jerry Cheng
@@ -88,22 +86,27 @@ function judgeModuleType(filePath, pathBeforeResolved) {
  * @returns
  */
 function resolving(filePath, externalPath, type) {
+  let targetDirectory;
+  let installedDirectory;
   let copyDestImportFile;
   let externalRelativePath;
+  // eg: externalPath: @chengjinrui/module_c/index.js
   if (path.extname(externalPath) === '.js') {
-    copyDestImportFile = externalPath;
-  } else {
-    const copySourcePackFile = path.resolve(externalPath, 'package.json');
-    const packageJson = require(copySourcePackFile);
-    const installedDirectory = path.resolve(targetDirectory, packageJson.name);
-    copyDestImportFile = path.resolve(installedDirectory, `${packageJson.main}`);
+    externalPath = path.dirname(externalPath);
   }
-  assert.info(type);
+  const copySourcePackFile = path.resolve(externalPath, 'package.json');
+  const packageJson = require(copySourcePackFile);
   switch (type) {
     case 'miniprogram_npm':
+      targetDirectory = 'dist/node_modules';
+      installedDirectory = path.resolve(targetDirectory, packageJson.name);
+      copyDestImportFile = path.resolve(installedDirectory, `${packageJson.main}`);
       externalRelativePath = path.relative(path.dirname(filePath), copyDestImportFile).replace(/node_modules\//, '');
       break;
     default:
+      targetDirectory = 'dist/miniprogram_npm';
+      installedDirectory = path.resolve(targetDirectory, packageJson.name);
+      copyDestImportFile = path.resolve(installedDirectory, `${packageJson.main}`);
       externalRelativePath = path.relative(path.dirname(filePath), assumedPathDev(copyDestImportFile));
       break;
   }
