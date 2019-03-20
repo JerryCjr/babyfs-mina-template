@@ -8,7 +8,7 @@ const directoryHelper = require('../../tools/directoryHelper.js');
 const fileHelper = require('../../tools/fileHelper.js');
 const assert = require('../../tools/assert.js');
 const _ = require('../../tools/utils.js');
-const resolveDependencies = require('./jmodule.js').resolveDependencies;
+const resolveDependencies = require('./index.js').resolveDependencies;
 
 const distPackageJsonPath = path.resolve('dist', 'package.json');
 const miniprogramNpmPath = path.resolve('dist', 'miniprogram_npm');
@@ -44,16 +44,15 @@ async function packageHander(sourceFileName) {
       assert.error(error);
     }
   } else {
-    assert.info(dependencySourcePath);
-    // 对packageJson.main指定的入口进行依赖处理 (类似node依赖处理分析)
+    // 入口依赖解析
     // assert.warn('dependencySourcePath', dependencySourcePath);
     const dependencyContent = await fileHelper.read(dependencySourcePath);
     const file = {
       path: dependencySourcePath,
-      contents: dependencyContent
+      contents: dependencyContent,
+      extname: path.extname(dependencySourcePath)
     };
-    const extname = path.extname(file.path);
-    const dependencyDestContent = resolveDependencies(file, extname);
+    const dependencyDestContent = resolveDependencies(file, 'miniprogram_npm');
     try {
       await directoryHelper.create(path.dirname(dependencyDestPath));
       await fileHelper.write(dependencyDestPath, dependencyDestContent);

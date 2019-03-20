@@ -45,7 +45,7 @@ const install = require('./dependency/install.js');
 // shift
 const shift = require('./dependency/shift.js');
 // dependency
-const dependency = require('./dependency');
+const dependency = require('./dependency').dependency;
 // clean
 async function clean() {
   await del.sync(`${distPath}/**/*`);

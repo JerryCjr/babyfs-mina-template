@@ -9,9 +9,12 @@ const assert = require('../../tools/assert.js');
 const targetDirectory = 'dist/miniprogram_npm';
 
 /**
- * 查找external模块
- * @param {String} moduleName 模块名称
- * @param {String} baseDirectory 查找的起始路径
+ * @description 查找external模块
+ * @author Jerry Cheng
+ * @date 2019-03-20
+ * @param {*} baseDirectory 查找的起始路径
+ * @param {*} moduleName 模块名称
+ * @returns external路径
  */
 function findInNodeModules(baseDirectory, moduleName) {
   const tryFindPath = path.resolve(baseDirectory, 'node_modules', moduleName);
@@ -30,8 +33,8 @@ function findInNodeModules(baseDirectory, moduleName) {
  * @description 比较相对路径的hack方法
  * @author Jerry Cheng
  * @date 2019-03-14
- * @param {*} path
- * @returns
+ * @param {String} path
+ * @returns hack路径
  */
 function assumedPathDev(path) {
   const reg = new RegExp(/\/dist\//);
@@ -44,21 +47,25 @@ function assumedPathDev(path) {
 /**
  * @description 判断依赖类型 本地依赖/三方库依赖
  * @author Jerry Cheng
- * @date 2019-03-14
+ * @date 2019-03-20
+ * @param {String} filePath 文件原始路径
+ * @param {String} pathBeforeResolved 处理依赖前的路径
+ * @returns 包含type类型和path信息的对象
  */
-function judgeModuleType(filePath, importPathBeforeResolved) {
-  // assert.log(importPathBeforeResolved);
+
+function judgeModuleType(filePath, pathBeforeResolved) {
+  // assert.log(pathBeforeResolved);
   let flag;
   let localPath;
   let externalPath;
-  localPath = path.resolve(path.dirname(filePath), importPathBeforeResolved);
+  localPath = path.resolve(path.dirname(filePath), pathBeforeResolved);
   flag = fileHelper.existSync(localPath);
   if (flag) {
     assert.info('依赖类型属于本地依赖');
   } else {
     assert.info('依赖类型属于三方库依赖');
     try {
-      externalPath = findInNodeModules(path.dirname(filePath), importPathBeforeResolved);
+      externalPath = findInNodeModules(path.dirname(filePath), pathBeforeResolved);
     } catch (error) {
       assert.error(error);
     }
@@ -72,32 +79,35 @@ function judgeModuleType(filePath, importPathBeforeResolved) {
 }
 
 /**
- * @description 解析依赖
+ * @description 处理路径
  * @author Jerry Cheng
- * @date 2019-03-14
- * @param {*} filePath
- * @param {*} externalPath
- * @returns 源文件对于解析后的依赖文件的相对路径
+ * @date 2019-03-20
+ * @param {String} filePath 文件原始路径
+ * @param {String} externalPath 文件依赖路径
+ * @param {String} type 处理依赖类型 wxapp/miniprogram_npm
+ * @returns
  */
-function resolving(filePath, externalPath) {
-  const copySourcePackFile = path.resolve(externalPath, 'package.json');
-  const packageJson = require(copySourcePackFile);
-  // const installedDirectory = path.resolve(targetDirectory, `${packageJson.name}@${packageJson.version}`);
-  const installedDirectory = path.resolve(targetDirectory, packageJson.name);
-  // const copyDestPackFile = path.resolve(installedDirectory, 'package.json');
-  // const copySourceImportFile = path.resolve(externalPath, `${packageJson.main}`);
-  const copyDestImportFile = path.resolve(installedDirectory, `${packageJson.main}`);
-  const externalRelativePath = path.relative(path.dirname(filePath), assumedPathDev(copyDestImportFile));
+function resolving(filePath, externalPath, type) {
+  let copyDestImportFile;
+  let externalRelativePath;
+  if (path.extname(externalPath) === '.js') {
+    copyDestImportFile = externalPath;
+  } else {
+    const copySourcePackFile = path.resolve(externalPath, 'package.json');
+    const packageJson = require(copySourcePackFile);
+    const installedDirectory = path.resolve(targetDirectory, packageJson.name);
+    copyDestImportFile = path.resolve(installedDirectory, `${packageJson.main}`);
+  }
+  assert.info(type);
+  switch (type) {
+    case 'miniprogram_npm':
+      externalRelativePath = path.relative(path.dirname(filePath), copyDestImportFile).replace(/node_modules\//, '');
+      break;
+    default:
+      externalRelativePath = path.relative(path.dirname(filePath), assumedPathDev(copyDestImportFile));
+      break;
+  }
   assert.warn('源文件对于解析后的依赖文件的相对路径', externalRelativePath);
-
-  // copy package.json copySourcePackFile copyDestPackFile
-  // copy importfile copySourceImportFile copyDestImportFile
-  // try {
-  //   fileHelper.copy(copySourcePackFile, copyDestPackFile);
-  //   fileHelper.copy(copySourceImportFile, copyDestImportFile);
-  // } catch (error) {
-  //   assert.error(error);
-  // }
   return externalRelativePath;
 }
 
@@ -140,7 +150,7 @@ function parseJsonFile(file) {
  * @param {*} file
  * @returns
  */
-function parseJsFile(file) {
+function parseJsFile(file, type) {
   const filePath = file.path;
   const fileContent = file.contents.toString('utf8');
   const source = j(fileContent);
@@ -151,13 +161,12 @@ function parseJsFile(file) {
     const imports = source.find(j.ImportDeclaration);
     let importPathBeforeResolved;
     let importPathAfterResolved;
-    // TODO: 异步等待依赖路径返回时有问题
     imports.map(paths => {
       importPathBeforeResolved = paths.value.source.value;
       const judgement = judgeModuleType(filePath, importPathBeforeResolved);
       // assert.info(judgement);
       if (judgement.type === 'external' && judgement.path) {
-        importPathAfterResolved = resolving(filePath, judgement.path);
+        importPathAfterResolved = resolving(filePath, judgement.path, type);
         assert.warn('importPathBeforeResolved', importPathBeforeResolved);
         assert.warn('importPathAfterResolved', importPathAfterResolved);
         paths.value.source = j.literal(importPathAfterResolved);
@@ -181,7 +190,7 @@ function parseJsFile(file) {
       const judgement = judgeModuleType(filePath, requirePathBeforeResolved);
       // assert.info(judgement);
       if (judgement.type === 'external' && judgement.path) {
-        requirePathAfterResolved = resolving(filePath, judgement.path);
+        requirePathAfterResolved = resolving(filePath, judgement.path, type);
         assert.warn('requirePathBeforeResolved', requirePathBeforeResolved);
         assert.warn('requirePathAfterResolved', requirePathAfterResolved);
         paths.value.arguments = [j.literal(requirePathAfterResolved)];
@@ -198,23 +207,26 @@ function parseJsFile(file) {
 }
 
 /**
- * @description 处理依赖
+ * @description 解析依赖
  * @author Jerry Cheng
- * @date 2019-03-15
+ * @date 2019-03-20
  * @param {*} file
- * @param {*} extname
- * @returns file content
+ * @param {string} [type='wxapp'] 默认解析微信小程序文件依赖
+ * @param {string} [type='miniprogram_npm'] 解析dist/miniprogram_npm每个module的文件依赖
+ * @returns 文本内容
  */
-function resolveDependencies(file, extname) {
-  switch (extname) {
+function resolveDependencies(file, type = 'wxapp') {
+  switch (file.extname) {
     case '.json':
       return parseJsonFile(file);
     case '.js':
-      return parseJsFile(file);
+      return parseJsFile(file, type);
   }
 }
 
-module.exports = function dependency() {
+module.exports.resolveDependencies = resolveDependencies;
+
+module.exports.dependency = function dependency() {
   return through.obj(function (file, enc, cb) {
     if (file.isNull()) {
       this.push(file);
@@ -224,8 +236,8 @@ module.exports = function dependency() {
       assert.error('ERROR: Streaming not supported');
       return cb();
     }
-    const extname = path.extname(file.path);
-    const content = resolveDependencies(file, extname);
+    file.extname = path.extname(file.path);
+    const content = resolveDependencies(file);
     file.contents = Buffer.from(content);
     this.push(file);
     cb();
