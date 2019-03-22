@@ -60,6 +60,7 @@ function judgeModuleType(filePath, pathBeforeResolved) {
   flag = fileHelper.existSync(localPath);
   if (flag) {
     assert.info('依赖类型属于本地依赖');
+    assert.warn('localPath', localPath);
   } else {
     assert.info('依赖类型属于三方库依赖');
     try {
