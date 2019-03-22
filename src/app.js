@@ -1,17 +1,9 @@
-// const cj = require('babyfs-wxapp-cj');
-// import cj from 'babyfs-wxapp-cj';
-import moduleC from '@chengjinrui/module_c';
-import moduleE from '@chengjinrui/module_e';
 App({
-
   /**
    * 当小程序初始化完成时，会触发 onLaunch（全局只触发一次）
    */
   async onLaunch(options) {
     console.log('test async');
-    // console.log(cj);
-    console.log(moduleC);
-    console.log(moduleE);
   },
 
   /**
