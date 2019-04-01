@@ -10,7 +10,7 @@ function transform(file, channel) {
   const source = j(contents);
   const importDeclarations = source.find(j.ImportDefaultSpecifier);
   let runtimeDeclared = false; // 是否已经声明了runtime
-  let r; // jscodeshift最终的返回结果
+  let r = source; // jscodeshift最终的返回结果
 
   const createImportRegenerator = () => {
     return j.importDeclaration(
