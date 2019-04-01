@@ -3,6 +3,13 @@
 MINA: 保留 MINA (微信小程序官方框架)
 GULP: Gulp 构建
 
+## 版本要求
+
+node version >= 10.12.0
+
+[Node release log](https://nodejs.org/en/blog/release/v10.12.0/)
+[Node version management](https://github.com/tj/n)
+
 ## 工程结构
 
 ```javascript
@@ -19,10 +26,12 @@ mina-gulp
 │    ├── app.less
 │    ├── project.config.json // 项目配置文件
 ├── gulpfile.js           // 打包相关的配置
+│    ├── dependency       // 依赖解析
+│    │    ├── index.js          // 入口
+│    │    ├── install.js        // 安装依赖,重组结构
+│    │    ├── shift.js          // jscodeshift dev依赖引入
 │    ├── auto.js          // 命令行快速创建
-│    ├── codemod.js       // jscodeshift
 │    ├── index.js         // gulpfile.js
-│    ├── install.js       // 安装模块依赖
 │    ├── qiniu.js         // 七牛cdn
 │    ├── replace.js       // 路径解析
 │    ├── tinify.js        // 图片压缩
