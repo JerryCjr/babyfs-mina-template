@@ -1,6 +1,6 @@
 {
   "name": "babyfs-mina-template",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "宝玩小程序开发模板",
   "main": "index.js",
   "scripts": {
