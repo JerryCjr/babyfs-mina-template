@@ -33,8 +33,10 @@ async function packageHander(sourceFileName) {
   const hackDirPath = path.dirname(hackFilePath);
   const dependencyDestPath = path.resolve(miniprogramNpmPath, hackDirPath, packageJson.main);
 
-  // 宝玩微信小程序纯js模块 宝玩微信小程序自定义组件 微信小程序自定义组件
-  if (packageJson['miniprogram'] && packageJson['miniprogram'] === 'miniprogram_dist') {
+  const customComponentFlag = packageJson['miniprogram'] && packageJson['miniprogram'] === 'miniprogram_dist'; // 宝玩微信小程序自定义组件 微信小程序自定义组件
+  const purejsFlag = packageJson['main'] && packageJson['main'] === 'miniprogram_dist/index.js'; // 宝玩微信小程序纯js模块
+
+  if (customComponentFlag || purejsFlag) {
     const miniprogramDistPath = path.resolve(nodeModulesPath, dependencyDir, 'miniprogram_dist');
     const relative = dependencyDir + '/miniprogram_dist';
     const priority = 2;
@@ -66,12 +68,31 @@ async function packageHander(sourceFileName) {
  * @description copyFile 拷贝文件
  * @author Jerry Cheng
  * @date 2019-03-15
- * @param {*} sourceFileName
+ * @param {Sting} sourceFileName 源文件路径
  */
 async function copyFile(sourceFileName) {
   const sourcePath = path.resolve(nodeModulesPath, sourceFileName); // packageJson源地址
   const destPath = path.resolve(miniprogramNpmPath, sourceFileName);
-  await fileHelper.copy(sourcePath, destPath);
+  const extname = path.extname(sourcePath);
+  // js/json need to be resolved
+  // other file only need to be copied
+  if (/(js|json)/.test(extname)) {
+    const dependencyContent = await fileHelper.read(sourcePath);
+    const file = {
+      path: sourcePath,
+      contents: dependencyContent,
+      extname: path.extname(sourcePath)
+    };
+    const dependencyDestContent = resolveDependencies(file, 'miniprogram_npm');
+    try {
+      await directoryHelper.create(path.dirname(destPath));
+      await fileHelper.write(destPath, dependencyDestContent);
+    } catch (error) {
+      assert.error(error);
+    }
+  } else {
+    await fileHelper.copy(sourcePath, destPath);
+  }
 }
 
 // 只解析package.json
