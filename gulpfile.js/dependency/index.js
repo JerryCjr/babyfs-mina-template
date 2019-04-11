@@ -158,11 +158,28 @@ function parseJsFile(file, type) {
   const source = j(fileContent);
   // assert.log(filePath);
 
+  function createImportRegenerator() {
+    return j.importDeclaration(
+      [j.importDefaultSpecifier(j.identifier('regeneratorRuntime'))],
+      j.literal('babyfs-wxapp-runningtime')
+    );
+  };
+
   // 处理import依赖
   const importHandler = () => {
-    const imports = source.find(j.ImportDeclaration);
+    let imports = source.find(j.ImportDeclaration);
     let importPathBeforeResolved;
     let importPathAfterResolved;
+    if (type === 'miniprogram_npm') {
+      if (/babyfs-wxapp-runningtime/.test(filePath)) return;
+      if (imports.length) {
+        imports.at(0).insertBefore(createImportRegenerator);
+      } else {
+        const body = source.get().value.program.body;
+        body.unshift(createImportRegenerator());
+      }
+      imports = source.find(j.ImportDeclaration);
+    }
     imports.map(paths => {
       importPathBeforeResolved = paths.value.source.value;
       const judgement = judgeModuleType(filePath, importPathBeforeResolved);
