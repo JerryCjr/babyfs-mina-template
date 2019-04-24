@@ -72,7 +72,11 @@ async function packageHander(sourceFileName) {
  */
 async function copyFile(sourceFileName) {
   const sourcePath = path.resolve(nodeModulesPath, sourceFileName); // packageJson源地址
-  const destPath = path.resolve(miniprogramNpmPath, sourceFileName);
+  let destPath = path.resolve(miniprogramNpmPath, sourceFileName);
+  if (/node_modules/.test(destPath)) {
+    // 可能包含node_module (sroucePath包含node_modules是没有关系的也是必然的 destPath的node_module必须去掉否则有解析错误)
+    destPath = destPath.replace(/node_modules\//, '');
+  }
   const extname = path.extname(sourcePath);
   // js/json need to be resolved
   // other file only need to be copied
