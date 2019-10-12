@@ -122,7 +122,7 @@ function resolving(filePath, externalPath, type) {
  */
 function parseJsonFile(file) {
   const filePath = file.path;
-  const source = require(filePath);
+  const source = JSON.parse(file.contents.toString('utf8'));
 
   if (source.usingComponents) {
     const handleComponentReference = () => {
