@@ -29,12 +29,10 @@ async function packageHander(sourceFileName) {
   // Dependency Copy
   const packageJson = require(jsonSourcePath);
   const dependencyDir = path.dirname(sourceFileName);
-  const dependencySourcePath = path.resolve(nodeModulesPath, dependencyDir, packageJson.main); // 依赖源
-  const hackDirPath = path.dirname(hackFilePath);
-  const dependencyDestPath = path.resolve(miniprogramNpmPath, hackDirPath, packageJson.main);
 
   const customComponentFlag = packageJson['miniprogram'] && packageJson['miniprogram'] === 'miniprogram_dist'; // 宝玩微信小程序自定义组件 微信小程序自定义组件
   const purejsFlag = packageJson['main'] && packageJson['main'] === 'miniprogram_dist/index.js'; // 宝玩微信小程序纯js模块
+  const otherComponentFlag = packageJson['miniprogram'] // 针对适用于小程序的其他npm包 eg: vant-weapp
 
   if (customComponentFlag || purejsFlag) {
     const miniprogramDistPath = path.resolve(nodeModulesPath, dependencyDir, 'miniprogram_dist');
@@ -45,7 +43,21 @@ async function packageHander(sourceFileName) {
     } catch (error) {
       assert.error(error);
     }
+  } else if (otherComponentFlag) {
+    const entry = packageJson['miniprogram'];
+    const miniprogramDistPath = path.resolve(nodeModulesPath, dependencyDir, entry);
+    const relative = path.join(dependencyDir, entry);
+    const priority = 2;
+    try {
+      await recursiveReadDir(priority, relative, miniprogramDistPath, copyFile);
+    } catch (error) {
+      assert.error(error);
+    }
   } else {
+    const entry = packageJson.main || packageJson.miniprogram;
+    const dependencySourcePath = path.resolve(nodeModulesPath, dependencyDir, entry); // 依赖源
+    const hackDirPath = path.dirname(hackFilePath);
+    const dependencyDestPath = path.resolve(miniprogramNpmPath, hackDirPath, entry);
     // 入口依赖解析
     // assert.warn('dependencySourcePath', dependencySourcePath);
     const dependencyContent = await fileHelper.read(dependencySourcePath);
