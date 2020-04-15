@@ -1,8 +1,15 @@
 const path = require('path');
 const j = require('jscodeshift');
 const through = require('through2');
-const conf = require('../../package.json');
-const { name, version } = { ...conf };
+const packageJSON = require('../../package.json');
+const {
+  _babyfs_app_name: appName,
+  _babyfs_app_names: appNames,
+  _babyfs_app_ids: appIds,
+  _babyfs_version: version
+} = {
+  ...packageJSON
+};
 
 function transform(file, channel) {
   const filePath = file.path; // 文件路径
@@ -19,8 +26,21 @@ function transform(file, channel) {
     );
   };
 
-  const createVariableRegenerator = (key, value) => {
-    return j.variableDeclaration('const', [j.variableDeclarator(j.identifier('proConf'), j.objectExpression([j.property('init', j.identifier('wxa_name'), j.literal(name)), j.property('init', j.identifier('wxa_version'), j.literal(version))]))]);
+  const createExportFunction = () => {
+    return j.exportDefaultDeclaration(
+      j.objectExpression([
+        j.property('init', j.identifier('version'), j.literal(version)),
+        j.property('init', j.identifier('appName'), j.literal(appName))
+        // j.property('init', j.identifier('appNames'), j.literal(appNames)),
+        // j.property('init', j.identifier('appIds'), j.literal(appIds))
+      ])
+    );
+  };
+
+  const addProConf = () => {
+    const body = source.get().value.program.body;
+    body.unshift(createExportFunction());
+    r = source;
   };
 
   if (importDeclarations.length) {
@@ -41,23 +61,17 @@ function transform(file, channel) {
     r = source;
   }
 
-  function addProConf() {
-    r.find(j.ImportDeclaration)
-      .at(-1)
-      .insertAfter(createVariableRegenerator());
-  }
-
-  if (/app\.js/.test(filePath)) {
+  if (/conf\.js/.test(filePath)) {
     addProConf();
   }
 
   return r.toSource({
     quote: 'single'
   });
-};
+}
 
-const shift = function (channel) {
-  return through.obj(function (file, enc, cb) {
+const shift = function(channel) {
+  return through.obj(function(file, enc, cb) {
     if (file.isNull()) {
       this.push(file);
       return cb();

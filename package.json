@@ -1,6 +1,10 @@
 {
   "name": "babyfs-mina-template",
   "version": "1.4.3",
+  "_babyfs_version": "2.1.11",
+  "_babyfs_app_ids": "填写有效的appid",
+  "_babyfs_app_names": "wxa_self,wxa_sagittarius,wxa_sagittarius_backup,wxa_capricorn",
+  "_babyfs_app_name": "wxa_capricorn",
   "description": "宝玩小程序开发模板",
   "main": "index.js",
   "scripts": {
