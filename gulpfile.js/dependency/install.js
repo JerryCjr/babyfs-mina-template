@@ -32,7 +32,7 @@ async function packageHander(sourceFileName) {
 
   const customComponentFlag = packageJson['miniprogram'] && packageJson['miniprogram'] === 'miniprogram_dist'; // 宝玩微信小程序自定义组件 微信小程序自定义组件
   const purejsFlag = packageJson['main'] && packageJson['main'] === 'miniprogram_dist/index.js'; // 宝玩微信小程序纯js模块
-  const otherComponentFlag = packageJson['miniprogram'] // 针对适用于小程序的其他npm包 eg: vant-weapp
+  const otherComponentFlag = packageJson['miniprogram']; // 针对适用于小程序的其他npm包 eg: vant-weapp
 
   if (customComponentFlag || purejsFlag) {
     const miniprogramDistPath = path.resolve(nodeModulesPath, dependencyDir, 'miniprogram_dist');

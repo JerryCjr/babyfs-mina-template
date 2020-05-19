@@ -5,7 +5,7 @@ const j = require('jscodeshift');
 const fileHelper = require('../../tools/fileHelper.js');
 const directoryHelper = require('../../tools/directoryHelper.js');
 const assert = require('../../tools/assert.js');
-
+const { notifier } = require('./../utils');
 /**
  * @description 查找external模块
  * @author Jerry Cheng
@@ -235,11 +235,15 @@ function parseJsFile(file, type) {
  * @returns 文本内容
  */
 function resolveDependencies(file, type = 'wxapp') {
-  switch (file.extname) {
-    case '.json':
-      return parseJsonFile(file);
-    case '.js':
-      return parseJsFile(file, type);
+  try {
+    switch (file.extname) {
+      case '.json':
+        return parseJsonFile(file);
+      case '.js':
+        return parseJsFile(file, type);
+    }
+  } catch (err) {
+    notifier(err.message);
   }
 }
 

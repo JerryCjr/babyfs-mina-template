@@ -3,9 +3,9 @@ const replace = require('gulp-replace');
 const md5 = require('md5');
 
 // 图片路径替换
-module.exports.replaceImgSrc = function (map) {
+module.exports.replaceImgSrc = function(map) {
   // eslint-disable-next-line no-useless-escape
-  return replace(/[\w\d-\/\.]+\.(png|gif|jpg|ico)/ig, function (value) {
+  return replace(/[\w\d-\/\.]+\.(png|gif|jpg|ico)/gi, function(value) {
     let newValue = value;
     if (value.indexOf('/images/') > -1 && value.indexOf('/local/') === -1) {
       let absSrc = `/src${value.substr(value.indexOf('/images/'), value.length)}`;
@@ -19,9 +19,17 @@ module.exports.replaceImgSrc = function (map) {
 };
 
 // 模块依赖路径替换
-module.exports.replaceModulePath = function () {
-  return replace(/@\/.*/ig, function (value) {
+module.exports.replaceModulePath = function() {
+  return replace(/@\/.*/gi, function(value) {
     const relative = path.relative(path.dirname(this.file.path), 'src/miniprogram_npm');
     return value.replace(/@/, relative);
+  });
+};
+
+// 模块依赖路径替换
+module.exports.resolveSrcPath = function() {
+  return replace(/~\/.*/gi, function(value) {
+    const relative = path.relative(path.dirname(this.file.path), 'src');
+    return value.replace(/~/, relative);
   });
 };
