@@ -1,7 +1,9 @@
-
 <template name="indexTpl">
   <view class="demo-template">
-		<view class="text">template：{{num}}</view>
-		<view bindtap="clickInTemplate" class="btn">templage点击</view>
-	</view>
+    <view class="text">template：{{num}}</view>
+    <view
+      bindtap="clickInTemplate"
+      class="btn"
+    >templage点击</view>
+  </view>
 </template>
